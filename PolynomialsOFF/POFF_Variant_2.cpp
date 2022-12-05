@@ -293,3 +293,15 @@ PB_Polynomial PB_Polynomial::power(const std::string& pow) const
     return result;
 }
 //
+
+// Compare
+bool PB_Polynomial::operator==(const PB_Polynomial& r) const
+{
+    return this->coefs == r.coefs;
+}
+//
+
+std::ostream& operator<<(std::ostream& out, const PB_Polynomial& p)
+{
+    return out << p.to_string();
+}

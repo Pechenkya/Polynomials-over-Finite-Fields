@@ -1,15 +1,18 @@
 #include <iostream>
-#include <bitset>
-#include "PolynomialsOFF\\POFF_Variant_2.hpp"
+#include ".\\Tests\\tests.hpp"
 
 int main()
 {
-    PB_Polynomial a(0b11);
-    std::string pow = "0x0003";
-    std::cout << a.power(pow).to_string() << std::endl;
-    std::cout << (a*a*a).to_string() << std::endl;
-
-    int x;
-    std::cin >> x;
+    PB_Tests::set_tests();
+    int x = 1;
+    while(true)
+    {
+        std::cout << "Input any number to run test (0 to exit): ";
+        std::cin >> x;
+        if(!x)
+            break;
+        
+        PB_Tests::run_test();
+    }
     return 0;
 }

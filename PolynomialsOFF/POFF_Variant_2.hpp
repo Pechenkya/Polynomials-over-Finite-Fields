@@ -1,7 +1,9 @@
+#pragma once
 // Include and predeclaration area
 
 #include <string>
 #include <bitset>
+#include <iostream>
 
 #define __FIELD_POWER 173
 #define __DOUBLED_FIELD_POWER 346
@@ -43,6 +45,9 @@ public:
     PB_Polynomial power(const std::string&) const;
     //
 
+    // Compare
+    bool operator==(const PB_Polynomial&) const;
+
 private:
     void in_square();
     static std::bitset<__FIELD_POWER> convert_string_to_power(const std::string&);
@@ -50,3 +55,5 @@ private:
     static std::bitset<__DOUBLED_FIELD_POWER> double_bitset_size(const std::bitset<__FIELD_POWER>&);
     static std::bitset<__FIELD_POWER> shrink_bitset_size(const std::bitset<__DOUBLED_FIELD_POWER>&);
 };
+
+std::ostream& operator<<(std::ostream&, const PB_Polynomial&);
