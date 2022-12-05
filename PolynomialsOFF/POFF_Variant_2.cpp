@@ -4,12 +4,8 @@
 #include <iostream>
 //
 
-// Constants
-namespace PB_Constants
-{
-
-}
-//
+#define MAX_HEX 11
+#define MAX_DEC 18
 
 // Constructors and destructors
 PB_Polynomial::PB_Polynomial() : coefs{0b0}, bit_length{__FIELD_POWER} {}
@@ -20,25 +16,27 @@ PB_Polynomial::PB_Polynomial(const std::bitset<__FIELD_POWER>& bit_repr) : coefs
 
 PB_Polynomial::PB_Polynomial(const std::string& string_repr) : bit_length{__FIELD_POWER} 
 {
-    // Expecting value in format "0b<bits>"
-    int str_ln = string_repr.size() - 2;
+    // Expecting value in format "<bits>"
+    int str_ln = string_repr.size() - 1;
     
     // Check mask and length
-    if(string_repr[0] != '0' || string_repr[1] != 'b' || str_ln > __FIELD_POWER)
+    if(str_ln > __FIELD_POWER)
         return; // coefs will be set to 0
     
     // Fill bitset according to the string
-    int coef_id = __FIELD_POWER - 1;
-    for(auto itr = string_repr.end() - 1; str_ln >= 0; --str_ln)
+    int coef_id = 0;
+    for(auto itr = string_repr.end() - 1; str_ln >= 0; --str_ln, --itr)
     {
         if(*itr == '1')
             coefs[coef_id] = 1;
-        else if(*itr != 0)
+        else if(*itr != '0')
         {
             // Corrupted string
             coefs = 0b0;
             return;
         }
+
+        coef_id++;
     }
 }
 
@@ -174,5 +172,124 @@ PB_Polynomial PB_Polynomial::square() const
     take_by_p_modulo(square_res_coefs);
 
     return PB_Polynomial(shrink_bitset_size(square_res_coefs));
+}
+
+void PB_Polynomial::in_square()
+{
+    std::bitset<__DOUBLED_FIELD_POWER> square_res_coefs;
+    // Use algebraic properties of squaring in field {0, 1}
+    for(int i = 0; i < __FIELD_POWER; ++i)
+        square_res_coefs[i << 1] = this->coefs[i];
+
+    // Than we need do adjust our values into our field (take mod p(x))
+    take_by_p_modulo(square_res_coefs);
+    this->coefs = shrink_bitset_size(square_res_coefs);
+}
+
+PB_Polynomial PB_Polynomial::inverse() const
+{
+    // We'll calculate inverse using Gorner's algorithm (O(1) :))
+    // Power vector: 1...10 of len __FIELD_POWER
+    PB_Polynomial result = 1;
+    
+    // __FIELD_POWER - 2: mult + square
+    for(int i = 1; i < __FIELD_POWER; ++i)
+    {
+        result = result * *this;
+        result.in_square();    
+    }
+
+    return result;
+}
+
+std::bitset<__FIELD_POWER> PB_Polynomial::convert_string_to_power(const std::string& ptc)
+{
+    std::bitset<__FIELD_POWER> res;
+    if(ptc[0] == '0' && ptc[1] == 'b')
+    {
+        // Converting from binary string
+        int str_ln = ptc.size() - 3;
+        if(str_ln > __FIELD_POWER)
+            return 0b0;
+
+        int coef_id = 0;
+        for(auto itr = ptc.end() - 1; str_ln >= 0; --str_ln, --itr)
+        {
+            if(*itr == '1')
+                res[coef_id] = 1;
+            else if(*itr != '0')
+            {
+                // Corrupted string
+                return 0b0;
+            }
+
+            coef_id++;
+        }
+    }
+    else if (ptc[0] == '0' && ptc[1] == 'x')
+    {
+        // Convering from hex string
+        // TODO: last powers check
+        int str_ln = ptc.size() - 3;
+        if(str_ln > MAX_HEX)
+            return 0b0;
+
+        int coef_id = 0;
+        for(auto itr = ptc.end() - 1; str_ln >= 0; --str_ln, --itr)
+        {
+            char curr = *itr;
+            unsigned num;
+            if(curr >= '0' && curr <= '9')
+            {
+                num = curr - 48;
+            }
+            else if(curr >= 'a' && curr <= 'f')
+            {
+                num = curr - 55;
+            }
+            else if(curr >= 'A' && curr <= 'F')
+            {
+                num = curr - 87;
+            }
+            else
+            {
+                // Corrupted string
+                return 0b0;
+            }
+
+            res[coef_id++] = num & 1;
+            res[coef_id++] = num & (1 << 1);
+            res[coef_id++] = num & (1 << 2);
+            res[coef_id++] = num & (1 << 3);
+        }
+    }
+    else
+    {
+        // TODO: convert from decimal
+        return 0b0;
+    }
+
+    // std::cout << res;
+    return res;
+}
+
+PB_Polynomial PB_Polynomial::power(const std::string& pow) const
+{
+    std::bitset<__FIELD_POWER> c_pow = convert_string_to_power(pow);
+    // __FIELD_POWER - 2: mult + square
+    PB_Polynomial result = 1;
+
+    for(int i = __FIELD_POWER - 1; i > 0; --i)
+    {
+        if(c_pow[i])
+            result = result * *this;
+
+        result.in_square();    
+    }
+
+    if(c_pow[0])
+        result = result * *this;
+
+    return result;
 }
 //

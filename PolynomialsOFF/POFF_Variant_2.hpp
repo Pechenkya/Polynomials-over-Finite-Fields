@@ -39,18 +39,14 @@ public:
     PB_Polynomial operator*(const PB_Polynomial&) const;
     static PB_Polynomial trace(const PB_Polynomial&);
     PB_Polynomial square() const;
-    // PB_Polynomial inverse() const;
-    // PB_Polynomial power(const LongInt_holder&) const;
+    PB_Polynomial inverse() const;
+    PB_Polynomial power(const std::string&) const;
     //
 
 private:
+    void in_square();
+    static std::bitset<__FIELD_POWER> convert_string_to_power(const std::string&);
     static void take_by_p_modulo(std::bitset<__DOUBLED_FIELD_POWER>&);
     static std::bitset<__DOUBLED_FIELD_POWER> double_bitset_size(const std::bitset<__FIELD_POWER>&);
     static std::bitset<__FIELD_POWER> shrink_bitset_size(const std::bitset<__DOUBLED_FIELD_POWER>&);
 };
-
-namespace PB_Constants
-{
-    extern const PB_Polynomial Zero;
-    extern const PB_Polynomial One;
-}
