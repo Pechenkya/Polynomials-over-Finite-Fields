@@ -3,7 +3,8 @@
 #include <string>
 #include <bitset>
 
-#define FIELD_POWER 173
+#define __FIELD_POWER 173
+#define __DOUBLED_FIELD_POWER 346
 class LongInt_holder;
 
 // End of include and predeclaration area
@@ -15,32 +16,37 @@ class LongInt_holder;
 class PB_Polynomial
 {
     // Vector of coeficients for polynomials
-    std::bitset<FIELD_POWER> coefs;
+    std::bitset<__FIELD_POWER> coefs;
     const size_t bit_length;
 
 public:
     // Constructors and destructor
     PB_Polynomial();
     PB_Polynomial(unsigned);
-    PB_Polynomial(const std::bitset<FIELD_POWER>&);
+    PB_Polynomial(const std::bitset<__FIELD_POWER>&);
     PB_Polynomial(const std::string&);
     ~PB_Polynomial();
     //
 
     // User interaction
-    size_t get_field_power();
-    static PB_Polynomial string_to_poly(const std::string&);
-    std::string to_string();
+    size_t get_field_power() const;
+    std::string to_string() const;
     //
 
     // Operations over polynomials
-    PB_Polynomial operator+(const PB_Polynomial&);
-    PB_Polynomial operator*(const PB_Polynomial&);
-    static int trace(const PB_Polynomial&);
-    PB_Polynomial square();
-    PB_Polynomial inverse();
-    PB_Polynomial power(const LongInt_holder&);
+    PB_Polynomial& operator=(const PB_Polynomial&);
+    PB_Polynomial operator+(const PB_Polynomial&) const;
+    PB_Polynomial operator*(const PB_Polynomial&) const;
+    static PB_Polynomial trace(const PB_Polynomial&);
+    PB_Polynomial square() const;
+    // PB_Polynomial inverse() const;
+    // PB_Polynomial power(const LongInt_holder&) const;
     //
+
+private:
+    static void take_by_p_modulo(std::bitset<__DOUBLED_FIELD_POWER>&);
+    static std::bitset<__DOUBLED_FIELD_POWER> double_bitset_size(const std::bitset<__FIELD_POWER>&);
+    static std::bitset<__FIELD_POWER> shrink_bitset_size(const std::bitset<__DOUBLED_FIELD_POWER>&);
 };
 
 namespace PB_Constants
