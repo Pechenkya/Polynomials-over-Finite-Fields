@@ -56,13 +56,14 @@ void PB_Tests::run_test()
     std::cout << "A + B: " << a + b << std::endl;
     std::cout << "A * B: " << a * b << std::endl;
     std::cout << "A^-1 : " << a.inverse() << std::endl;
-    std::cout << "Correct: " << (a.inverse() * a == PB_Polynomial("1")) << std::endl;
+    std::cout << "Correct: " << ((a.inverse() * a == PB_Polynomial("1")) && (a.inverse().inverse() == a)) << std::endl;
     std::cout << "B^-1 : " << b.inverse() << std::endl;
-    std::cout << "Correct: " << (b.inverse() * b == PB_Polynomial("1")) << std::endl;
+    std::cout << "Correct: " << ((b.inverse() * b == PB_Polynomial("1")) && (a.inverse().inverse() == a)) << std::endl;
     std::cout << "A^2 : " << a.square() << std::endl;
     std::cout << "Correct: " << (a.square() == a*a) << std::endl;
     std::cout << "B^2 : " << b.square() << std::endl;
     std::cout << "Correct: " << (b.square() == b*b) << std::endl;
+    std::cout << "Square correct: " << ((a + b).square() == (a.square() + b.square())) << std::endl;
     std::cout << "A^POW:" << a.power(pow) << std::endl;
     std::cout << "B^POW:" << b.power(pow) << std::endl;
     std::cout << "Tr(A): " << PB_Polynomial::trace(a) << std::endl;
