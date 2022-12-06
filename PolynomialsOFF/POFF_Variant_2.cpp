@@ -51,7 +51,7 @@ size_t PB_Polynomial::get_field_power() const
 
 std::string PB_Polynomial::to_string() const
 {
-    // return "0b" + this->coefs.to_string();
+    // return this->coefs.to_string();
 
     // Alternative implementation
     std::string res = "";

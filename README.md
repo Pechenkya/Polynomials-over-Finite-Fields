@@ -6,4 +6,4 @@
 **Variant:** 2
 
 ## Description
-This repository contains solution and tests for Lab 3 of STCA (Variant 2)
+This repository contains solution and tests for Labs 3 and 4 of STCA (Variant 2)
