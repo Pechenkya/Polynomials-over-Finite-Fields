@@ -20,7 +20,7 @@ PB_Polynomial::PB_Polynomial(const std::string& string_repr) : bit_length{__FIEL
     int str_ln = string_repr.size() - 1;
     
     // Check mask and length
-    if(str_ln > __FIELD_POWER)
+    if(str_ln >= __FIELD_POWER)
         return; // coefs will be set to 0
     
     // Fill bitset according to the string
