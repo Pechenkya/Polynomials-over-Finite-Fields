@@ -23,6 +23,7 @@ class NB_Polynomial
     const size_t bit_length;
     static bool multiplication_matrix_generated;
     static std::bitset<__FIELD_POWER> mult_matrix[__FIELD_POWER];
+    static std::bitset<__FIELD_POWER> t_mult_matrix[__FIELD_POWER];
 
 public:
     // Constructors and destructor
@@ -54,6 +55,7 @@ public:
 
 // private:
     void in_square();
+    static bool get_sum_of_bits(const std::bitset<__FIELD_POWER>&);
     static std::bitset<__FIELD_POWER> convert_string_to_power(const std::string&);
     static std::bitset<__FIELD_POWER> cycle_shift_left(const std::bitset<__FIELD_POWER>&, int);   // 1 to 0
     static void cycle_shift_left_self(std::bitset<__FIELD_POWER>&, int);

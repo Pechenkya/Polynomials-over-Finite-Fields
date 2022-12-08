@@ -15,6 +15,7 @@
 bool NB_Polynomial::multiplication_matrix_generated = false;
 
 std::bitset<__FIELD_POWER> NB_Polynomial::mult_matrix[173];
+std::bitset<__FIELD_POWER> NB_Polynomial::t_mult_matrix[173];
 
 template<int N>
 struct PowOf2
@@ -48,10 +49,10 @@ void NB_Polynomial::generate_mult_matrix()
             int v_2 = pow_of_2.arr[i] - pow_of_2.arr[j];
             int v_3 = -pow_of_2.arr[i] + pow_of_2.arr[j];
             int v_4 = -pow_of_2.arr[i] - pow_of_2.arr[j];
-            mult_matrix[i][j] = (v_1 % p == 1 || (v_1 % p) + p == 1)
-                             || (v_2 % p == 1 || (v_2 % p) + p == 1)
-                             || (v_3 % p == 1 || (v_3 % p) + p == 1)
-                             || (v_4 % p == 1 || (v_4 % p) + p == 1);
+            t_mult_matrix[j][i] = mult_matrix[i][j]  = (v_1 % p == 1 || (v_1 % p) + p == 1)
+                                                    || (v_2 % p == 1 || (v_2 % p) + p == 1)
+                                                    || (v_3 % p == 1 || (v_3 % p) + p == 1)
+                                                    || (v_4 % p == 1 || (v_4 % p) + p == 1);
         }
     }
 }
@@ -75,15 +76,6 @@ NB_Polynomial::NB_Polynomial(bool cnst) : bit_length{__FIELD_POWER}
     {
         generate_mult_matrix();
         multiplication_matrix_generated = true;
-
-        for(int i = 0; i < __FIELD_POWER; ++i)
-        {
-            for(int j = 0; j < __FIELD_POWER; ++j)
-            {
-                std::cout << mult_matrix[i][j];
-            }
-            std::cout << std::endl;
-        }
     }
 
     if(cnst)
@@ -186,22 +178,17 @@ NB_Polynomial NB_Polynomial::operator*(const NB_Polynomial& right) const
 
     std::bitset<__FIELD_POWER> left_temp = this->coefs;
     std::bitset<__FIELD_POWER> right_temp = right.coefs;
-    for(int i = 0; i < __FIELD_POWER; ++i)
+    std::bitset<__FIELD_POWER> temp_mult;
+    for(int i = 0; i < __FIELD_POWER; ++i, 
+        cycle_shift_left_self(left_temp, 1), 
+        cycle_shift_left_self(right_temp, 1))
     {
-        
-        std::bitset<__FIELD_POWER> first_mult = 0b0;
         for(int j = 0; j < __FIELD_POWER; ++j)
         {
-            for(int k = 0; k < __FIELD_POWER; ++k)
-            {
-                first_mult[j] = first_mult[j] ^ (left_temp[j] && mult_matrix[j][k]);
-            }
+            temp_mult[j] = get_sum_of_bits(left_temp & t_mult_matrix[j]);
         }
 
-        for(int k = 0; k < __FIELD_POWER; ++k)
-        {
-            res_coefs[i] = res_coefs[i] ^ (first_mult[k] && right_temp[k]);
-        }
+        res_coefs[i] = get_sum_of_bits(temp_mult & right_temp);
     }
 
     return NB_Polynomial(res_coefs);
@@ -210,12 +197,7 @@ NB_Polynomial NB_Polynomial::operator*(const NB_Polynomial& right) const
 int NB_Polynomial::trace(const NB_Polynomial& poly)
 {
     // In NB trace of element is equal to sum of it's coefficients (+ == ^)
-    int result = 0;
-    for(int i = 0; i < __FIELD_POWER; ++i)
-    {
-        result ^= (int)poly.coefs[i];
-    }
-    return result;
+    return get_sum_of_bits(poly.coefs);
 }
 
 NB_Polynomial NB_Polynomial::square() const
@@ -229,7 +211,7 @@ NB_Polynomial NB_Polynomial::inverse() const
     // To calculate inverse in NB we will use Itoh-Tsujii algorithm (Modified Gorner to use more squares)
     NB_Polynomial result = *this;
     unsigned k = 1u;
-    unsigned to_pow = (unsigned)__FIELD_POWER - 1u;
+    constexpr std::bitset<LOG_OF_POWER> m = (unsigned)__FIELD_POWER - 1u; 
 
     NB_Polynomial temp(1);
     for(int i = LOG_OF_POWER - 1; i >= 0; --i)
@@ -237,12 +219,12 @@ NB_Polynomial NB_Polynomial::inverse() const
         temp = result;
         for(int j = 0; j < k; ++j)
         {
-            result = result.square();
+            temp.in_square();
         }
         result = result * temp;
-
-        // if m_i == 1
-        if(to_pow & (1u << i))
+        k *= 2;
+        
+        if(m[i])
         {
             result = result.square() * *this;
             ++k;
@@ -254,7 +236,7 @@ NB_Polynomial NB_Polynomial::inverse() const
 
 void NB_Polynomial::in_square()
 {
-    this->coefs = cycle_shift_right(this->coefs, 1);
+    cycle_shift_right_self(this->coefs, 1);
 }
 
 std::bitset<__FIELD_POWER> NB_Polynomial::convert_string_to_power(const std::string& ptc)
@@ -350,6 +332,18 @@ NB_Polynomial NB_Polynomial::power(const std::string& pow) const
 
 
 //
+
+bool NB_Polynomial::get_sum_of_bits(const std::bitset<__FIELD_POWER>& val)
+{
+    bool res = 0;
+    for(int i = 0; i < __FIELD_POWER; ++i)
+    {
+        res ^= val[i];
+    }
+
+    return res;
+}
+
 // 1 to 0
 std::bitset<__FIELD_POWER> NB_Polynomial::cycle_shift_left(const std::bitset<__FIELD_POWER>& in, int i)
 {

@@ -5,8 +5,6 @@
 #include <random>
 #include <thread>
 #include <chrono>
-#include "..\\PolynomialsOFF\\POFF_Variant_2.hpp"
-#include "..\\GNBPolynomials\\GNBP_Variant_2.hpp"
 
 #define TEST_SAMPLES 500
 #define POWER_SAMPLES 30
@@ -61,7 +59,7 @@ void PB_NB_Tests::run_PB_test()
     std::cout << "A^-1 : " << a.inverse() << std::endl;
     std::cout << "Correct: " << ((a.inverse() * a == PB_Polynomial("1")) && (a.inverse().inverse() == a)) << std::endl;
     std::cout << "B^-1 : " << b.inverse() << std::endl;
-    std::cout << "Correct: " << ((b.inverse() * b == PB_Polynomial("1")) && (a.inverse().inverse() == a)) << std::endl;
+    std::cout << "Correct: " << ((b.inverse() * b == PB_Polynomial("1")) && (b.inverse().inverse() == b)) << std::endl;
     std::cout << "A^2 : " << a.square() << std::endl;
     std::cout << "Correct: " << (a.square() == a*a) << std::endl;
     std::cout << "B^2 : " << b.square() << std::endl;
@@ -72,6 +70,13 @@ void PB_NB_Tests::run_PB_test()
     std::cout << "Tr(A): " << PB_Polynomial::trace(a) << std::endl;
     std::cout << "Tr(B): " << PB_Polynomial::trace(b) << std::endl;
     std::cout << "--------- TEST END (PB) -----------\n";
+}
+
+void PB_NB_Tests::get_nb_values(std::string& a, std::string& b, std::string& pow)
+{
+    a = nb_binaries[rand() % TEST_SAMPLES];
+    b = nb_binaries[rand() % TEST_SAMPLES];
+    pow = powers[rand() % POWER_SAMPLES];
 }
 
 void PB_NB_Tests::run_NB_test()
@@ -92,9 +97,12 @@ void PB_NB_Tests::run_NB_test()
     std::cout << "A + B: " << a + b << std::endl;
     std::cout << "A * B: " << a * b << std::endl;
     std::cout << "A^-1 : " << a.inverse() << std::endl;
-    std::cout << "Correct: " << ((a.inverse() * a == NB_Polynomial("1")) && (a.inverse().inverse() == a)) << std::endl;
+    std::cout << "-- TEMP --\n";
+    std::cout << "A^-1 * A: " << a.inverse() * a << std::endl;
+    std::cout << "A^-1^-1 : " << a.inverse().inverse() << std::endl;
+    std::cout << "Correct: " << ((a.inverse() * a == NB_Polynomial(1)) && (a.inverse().inverse() == a)) << std::endl;
     std::cout << "B^-1 : " << b.inverse() << std::endl;
-    std::cout << "Correct: " << ((b.inverse() * b == NB_Polynomial("1")) && (a.inverse().inverse() == a)) << std::endl;
+    std::cout << "Correct: " << ((b.inverse() * b == NB_Polynomial(1)) && (b.inverse().inverse() == b)) << std::endl;
     std::cout << "A^2 : " << a.square() << std::endl;
     std::cout << "Correct: " << (a.square() == a*a) << std::endl;
     std::cout << "B^2 : " << b.square() << std::endl;
